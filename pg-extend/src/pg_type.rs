@@ -1,6 +1,6 @@
 //! Postgres type definitions
 
-use crate::native::Text;
+use crate::native::{ByteA, Text};
 
 /// See https://www.postgresql.org/docs/11/xfunc-c.html#XFUNC-C-TYPE-TABLE
 ///
@@ -227,6 +227,16 @@ where
 
     fn is_option() -> bool {
         true
+    }
+}
+
+impl PgTypeInfo for ByteA<'_> {
+    fn pg_type() -> PgType {
+        PgType::ByteA
+    }
+
+    fn is_option() -> bool {
+        false
     }
 }
 

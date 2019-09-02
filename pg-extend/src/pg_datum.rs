@@ -11,7 +11,7 @@ use std::ffi::{CStr, CString};
 use std::marker::PhantomData;
 use std::ptr::NonNull;
 
-use crate::native::Text;
+use crate::native::{ByteA, Text};
 use crate::pg_alloc::{PgAllocated, PgAllocator};
 use crate::pg_bool;
 use crate::pg_sys::{self, Datum};
@@ -250,6 +250,31 @@ impl<'s> TryFromPgDatum<'s> for PgAllocated<'s, CString> {
                     Ok(allocated)
                 })
             }
+        } else {
+            Err("datum was NULL")
+        }
+    }
+}
+
+impl<'s> From<ByteA<'s>> for PgDatum<'s> {
+    fn from(value: ByteA<'s>) -> Self {
+        let ptr = unsafe { value.into_ptr() };
+        PgDatum(Some(ptr as Datum), PhantomData)
+    }
+}
+
+impl<'s> TryFromPgDatum<'s> for ByteA<'s> {
+    fn try_from<'mc>(
+        memory_context: &'mc PgAllocator,
+        datum: PgDatum<'mc>,
+    ) -> Result<Self, &'static str>
+    where
+        Self: 's,
+        'mc: 's,
+    {
+        if let Some(datum) = datum.0 {
+            let data_ptr = datum as *const pg_sys::bytea;
+            unsafe { Ok(ByteA::from_raw(memory_context, data_ptr as *mut _)) }
         } else {
             Err("datum was NULL")
         }
