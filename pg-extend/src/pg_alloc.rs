@@ -148,8 +148,8 @@ impl<'mc, T: RawPtr> Drop for PgAllocated<'mc, T> {
             unsafe {
                 // TODO: do we need to run the drop on the inner type?
                 // let ptr: *mut T = mem::transmute(inner.deref_mut().deref_mut());
-                let ptr: *mut _ = ManuallyDrop::into_inner(inner).into_raw();
-                self.allocator.dealloc(ptr);
+                // let ptr: *mut _ = ManuallyDrop::into_inner(inner).into_raw();
+                // self.allocator.dealloc(ptr);
             }
         }
     }
