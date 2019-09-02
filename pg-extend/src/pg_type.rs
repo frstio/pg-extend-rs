@@ -199,6 +199,12 @@ impl PgTypeInfo for i64 {
     }
 }
 
+impl PgTypeInfo for f64 {
+    fn pg_type() -> PgType {
+        PgType::Float8
+    }
+}
+
 impl PgTypeInfo for String {
     fn pg_type() -> PgType {
         PgType::Text

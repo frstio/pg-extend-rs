@@ -142,6 +142,27 @@ impl From<i64> for PgDatum<'_> {
     }
 }
 
+impl<'s> TryFromPgDatum<'s> for f64 {
+    fn try_from<'mc>(_: &'mc PgAllocator, datum: PgDatum<'mc>) -> Result<Self, &'static str>
+    where
+        Self: 's,
+        'mc: 's,
+    {
+        if let Some(datum) = datum.0 {
+            unsafe { Ok(std::mem::transmute(datum)) }
+        } else {
+            Err("datum was NULL")
+        }
+    }
+}
+
+impl From<f64> for PgDatum<'_> {
+    fn from(value: f64) -> Self {
+        let value: usize = unsafe { std::mem::transmute(value) };
+        PgDatum(Some(value as Datum), PhantomData)
+    }
+}
+
 #[deprecated(note = "String is not Zero cost, please use the CString variant")]
 impl<'s> TryFromPgDatum<'s> for String {
     fn try_from<'mc>(
